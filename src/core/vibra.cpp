@@ -170,5 +170,56 @@ bool AcousticTransceiver::decode_raw_audio_to_text(const std::string& host_path,
     return !out_text.empty();
 }
 
+/**
+ * 🔨 MILESTONE 4: SOLID-MATTER KINETIC IMPULSE ENGINE 🔨
+ * Serializes text strings into a raw 16-bit binary BASK mechanical wave format.
+ * Encodes individual bit states as high-intensity low-frequency 50Hz impact pulses.
+ */
+bool AcousticTransceiver::export_kinetic_pulses_to_file(const std::string& input_text, const std::string& host_path) {
+    if (input_text.empty()) return false;
+
+    std::ofstream out_file(host_path, std::ios::binary | std::ios::out | std::ios::trunc);
+    if (!out_file.is_open()) {
+        std::cerr << "❌ Data Write Exception: Failed to secure kinetic file allocation locks on: " << host_path << std::endl;
+        return false;
+    }
+
+    // Allocate a tight 50ms duration threshold per discrete bit block window to maximize transmission speed
+    size_t samples_per_bit_window = (SAMPLE_RATE * 50) / 1000;
+
+    for (char c : input_text) {
+        uint8_t byte_value = static_cast<uint8_t>(c);
+
+        // 🔒 BIT-SLICING MATRIX: Extract all 8 structural data bits sequentially from MSB to LSB
+        for (int bit_index = 7; bit_index >= 0; --bit_index) {
+            bool active_bit_state = (byte_value >> bit_index) & 1;
+
+            for (size_t i = 0; i < samples_per_bit_window; ++i) {
+                int16_t raw_pcm_sample = 0;
+
+                if (active_bit_state) {
+                    // Generate a high-intensity, flat-topped square wave cycle to drive maximum kinetic rumble force
+                    double time_t = static_cast<double>(i) / SAMPLE_RATE;
+                    double sine_wave_reference = std::sin(2.0 * M_PI * KINETIC_FREQ_HZ * time_t);
+
+                    // Direct mathematical threshold clamp to construct the sharp square boundaries
+                    raw_pcm_sample = (sine_wave_reference >= 0.0) ? 32767 : -32767;
+                } else {
+                    // Emit a crisp dead interval silence window to distinguish boundaries clearly
+                    raw_pcm_sample = 0;
+                }
+
+                out_file.write(reinterpret_cast<const char*>(&raw_pcm_sample), sizeof(int16_t));
+            }
+        }
+    }
+
+    out_file.flush();
+    out_file.close();
+    processed_frames_count_ += input_text.length();
+    return true;
+}
+
 } // namespace Vibra
+
 

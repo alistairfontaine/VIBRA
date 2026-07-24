@@ -38,6 +38,13 @@ public:
     // 📡 Milestone 2 Core Primitives (Hard-Target Binary Audio Demodulation Parser)
     bool decode_raw_audio_to_text(const std::string& host_path, std::string& out_text);
 
+    // 🔨 Milestone 4 Core Primitives (Kinetic Mechanical Impulse Engine)
+    bool export_kinetic_pulses_to_file(const std::string& input_text, const std::string& host_path);
+
+    // Structural Kinetic Constant Key Configurations
+    static constexpr uint32_t KINETIC_FREQ_HZ = 50;  // 50Hz ultra-low frequency mechanical shockwave rumble
+
+
     // Diagnostics State Getters
     size_t get_total_processed_frames() const { return processed_frames_count_; }
 

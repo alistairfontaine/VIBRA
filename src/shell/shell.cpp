@@ -35,8 +35,10 @@ void launch_interactive_shell(AcousticTransceiver& transceiver) {
         else if (command == "help") {
             std::cout << "\n📋 Operational VIBRA Core Primitives:" << std::endl;
             std::cout << "  encode <text_payload>     - Modulates text strings into near-ultrasonic frequency matrices" << std::endl;
-            std::cout << "  export <file.vibra> <txt> - Compiles and serializes raw 16-bit PCM waves directly to disk" << std::endl;
-            std::cout << "  decode <file.vibra>       - Ingests a raw file container and applies bare-metal DFT scans" << std::endl;
+            std::cout << "  export  <file.vibra> <txt> - Compiles and serializes raw 16-bit PCM waves directly to disk" << std::endl;
+            std::cout << "  decode  <file.vibra>       - Ingests a raw file container and applies bare-metal DFT scans" << std::endl;
+            std::cout << "  kinetic <file.vibra> <txt> - Modulates bits into 50Hz square-wave solid-matter impact pulses" << std::endl;
+
             std::cout << "  status                    - Queries internal metrics tracking overall processed frame counts" << std::endl;
             std::cout << "  exit / quit               - Safely releases descriptors and terminates the shell context\n" << std::endl;
         }
@@ -94,6 +96,26 @@ void launch_interactive_shell(AcousticTransceiver& transceiver) {
                 std::cerr << "❌ Extraction failure: Target container is corrupted or falls below magnitude thresholds." << std::endl;
             }
         }
+        else if (command == "kinetic") {
+            if (args.size() < 2) {
+                std::cerr << "⚠️ Usage error: kinetic <destination_path.vibra> <text_payload_to_pulse>" << std::endl;
+                continue;
+            }
+            std::string dest_path = "tests/" + args[0];
+
+            // Re-aggregate token elements into a tight, unified data payload string
+            std::string text_payload = args[1];
+            for (size_t i = 2; i < args.size(); ++i) {
+                text_payload += " " + args[i];
+            }
+
+            std::cout << "🔨 [Kinetic Core] Commencing binary Amplitude-Shift Keying bit conversion..." << std::endl;
+            std::cout << "🔊 [Pulse Matrix] Generating low-frequency 50Hz mechanical square-wave rumbles..." << std::endl;
+            if (transceiver.export_kinetic_pulses_to_file(text_payload, dest_path)) {
+                std::cout << "✓ Success: Mapped and serialized kinetic structural impact file to: " << dest_path << std::endl;
+            }
+        }
+
         else if (command == "status") {
             std::cout << "📊 VIBRA Engine Telemetry Status:" << std::endl;
             std::cout << "  Processed Signal Frame Footprints: " << transceiver.get_total_processed_frames() << " records." << std::endl;
