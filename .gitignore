@@ -1,0 +1,14 @@
+# Compilation binary targets
+vibra-vfs
+build/
+*.o
+*.out
+
+# Sovereign signal container extensions
+*.vibra
+
+# Transient system and text logs
+.DS_Store
+*.swp
+*.log
+

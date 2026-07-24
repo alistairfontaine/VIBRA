@@ -1,0 +1,47 @@
+#ifndef VIBRA_HPP
+#define VIBRA_HPP
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+namespace Vibra {
+
+// Core Structural Acoustic Constants
+constexpr uint32_t SAMPLE_RATE = 44100;     // Standard CD quality audio sampling rate (Hz)
+constexpr uint32_t TONE_DURATION_MS = 100;   // Duration per transmitted character block (ms)
+constexpr uint32_t BASE_FREQUENCY = 18000;  // High-frequency anchoring threshold (18kHz - near-ultrasonic)
+constexpr uint32_t FREQ_STEP = 20;          // Hertz interval multiplier spacing per ASCII character
+
+#pragma pack(push, 1)
+/**
+ * Packed Signal Frame Structure
+ * Bypasses high-level encoding to represent raw modulated acoustic data parameters.
+ */
+struct AcousticSignalFrame {
+    uint32_t frequency_hz;   // Calculated audio frequency tone coordinates
+    uint32_t duration_ms;    // Duration marker to regulate transmission clock pacing
+    uint8_t  ascii_char;     // The original alphanumeric byte symbol represented by the tone
+};
+#pragma pack(pop)
+
+class AcousticTransceiver {
+public:
+    AcousticTransceiver();
+    ~AcousticTransceiver();
+
+    // Milestone 1 Core Primitives
+    bool encode_text_to_signals(const std::string& input_text, std::vector<AcousticSignalFrame>& out_signal);
+    bool decode_signals_to_text(const std::vector<AcousticSignalFrame>& input_signal, std::string& out_text);
+    bool export_signal_to_raw_audio(const std::vector<AcousticSignalFrame>& signal, const std::string& host_path);
+
+    // Diagnostics State Getters
+    size_t get_total_processed_frames() const { return processed_frames_count_; }
+
+private:
+    size_t processed_frames_count_;
+};
+
+} // namespace Vibra
+
+#endif // VIBRA_HPP
