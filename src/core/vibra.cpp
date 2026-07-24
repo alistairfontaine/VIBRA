@@ -92,4 +92,83 @@ bool AcousticTransceiver::export_signal_to_raw_audio(const std::vector<AcousticS
     return true;
 }
 
+/**
+ * 🔒 ZERO-DEPENDENCY DISCRETE FOURIER TRANSFORM COEFFICIENT SCANNER 🔒
+ * Correlates raw sample windows against targeted trigonometric sine and cosine waves.
+ * Returns the raw magnitude coefficient representing spectral energy at target_freq.
+ */
+float AcousticTransceiver::analyze_frequency_magnitude(const std::vector<int16_t>& samples, uint32_t target_freq) const {
+    double real_component = 0.0;
+    double imag_component = 0.0;
+    size_t N = samples.size();
+
+    for (size_t n = 0; n < N; ++n) {
+        // Compute discrete sample phase tracking angles off bedrock physics principles
+        double angle_theta = 2.0 * M_PI * target_freq * static_cast<double>(n) / SAMPLE_RATE;
+
+        double sample_val = static_cast<double>(samples[n]) / 32767.0;
+
+        real_component += sample_val * std::cos(angle_theta);
+        imag_component -= sample_val * std::sin(angle_theta);
+    }
+
+    return static_cast<float>(std::sqrt(real_component * real_component + imag_component * imag_component));
+}
+
+/**
+ * 📡 BINARY AUDIO SIGNAL INGEST DEMODULATOR 📡
+ * Streams a raw 16-bit mono PCM .vibra container file off your storage partition,
+ * segments the raw audio samples into distinct clock tone windows, and extracts text.
+ */
+bool AcousticTransceiver::decode_raw_audio_to_text(const std::string& host_path, std::string& out_text) {
+    std::ifstream file_in(host_path, std::ios::binary | std::ios::ate);
+    if (!file_in.is_open()) {
+        std::cerr << "❌ Ingest Exception: Failed to open target audio data file: " << host_path << std::endl;
+        return false;
+    }
+
+    std::streamsize file_size = file_in.tellg();
+    file_in.seekg(0, std::ios::beg);
+
+    size_t total_16bit_samples = file_size / sizeof(int16_t);
+    std::vector<int16_t> audio_buffer(total_16bit_samples);
+    file_in.read(reinterpret_cast<char*>(audio_buffer.data()), file_size);
+    file_in.close();
+
+    out_text.clear();
+
+    // Compute the sizing layout footprint of samples contained within a single discrete tone duration window
+    size_t samples_per_tone_window = (SAMPLE_RATE * TONE_DURATION_MS) / 1000;
+    size_t processed_samples_offset = 0;
+
+    // Segment data tracks window by window across the entire audio buffer loop
+    while (processed_samples_offset + samples_per_tone_window <= audio_buffer.size()) {
+        std::vector<int16_t> tone_window(audio_buffer.begin() + processed_samples_offset,
+                                         audio_buffer.begin() + processed_samples_offset + samples_per_tone_window);
+
+        uint8_t best_ascii_match = 0;
+        float highest_magnitude_coefficient = -1.0f;
+
+        // 🔒 INTELLECTUAL SPEC SPECTRUM SCANNER: Evaluate every potential valid ASCII character slot
+        for (uint16_t ascii_candidate = 0; ascii_candidate < 256; ++ascii_candidate) {
+            uint32_t target_frequency = BASE_FREQUENCY + (ascii_candidate * FREQ_STEP);
+            float magnitude = analyze_frequency_magnitude(tone_window, target_frequency);
+
+            if (magnitude > highest_magnitude_coefficient) {
+                highest_magnitude_coefficient = magnitude;
+                best_ascii_match = static_cast<uint8_t>(ascii_candidate);
+            }
+        }
+
+        if (highest_magnitude_coefficient > 0.1f) {
+            out_text.push_back(static_cast<char>(best_ascii_match));
+        }
+
+        processed_samples_offset += samples_per_tone_window;
+    }
+
+    return !out_text.empty();
+}
+
 } // namespace Vibra
+

@@ -35,12 +35,19 @@ public:
     bool decode_signals_to_text(const std::vector<AcousticSignalFrame>& input_signal, std::string& out_text);
     bool export_signal_to_raw_audio(const std::vector<AcousticSignalFrame>& signal, const std::string& host_path);
 
+    // 📡 Milestone 2 Core Primitives (Hard-Target Binary Audio Demodulation Parser)
+    bool decode_raw_audio_to_text(const std::string& host_path, std::string& out_text);
+
     // Diagnostics State Getters
     size_t get_total_processed_frames() const { return processed_frames_count_; }
 
 private:
     size_t processed_frames_count_;
+
+    // 🔒 BARE-METAL SIGNAL MATH PRIMITIVE: Zero-dependency Discrete Fourier Transform scanner
+    float analyze_frequency_magnitude(const std::vector<int16_t>& samples, uint32_t target_freq) const;
 };
+
 
 } // namespace Vibra
 
